@@ -1,4 +1,5 @@
 import asyncio
+from contextlib import asynccontextmanager
 import os
 from typing import Union
 
@@ -73,7 +74,22 @@ def format_order_message(order: OrderIn) -> str:
     )
 
 
-app = FastAPI(title="VakhasBot Mini App")
+# Управление жизненным циклом (Lifespan) FastAPI
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # 1. Сбрасываем старый webhook с удалением зависших обновлений
+    await bot.delete_webhook(drop_pending_updates=True)
+    # 2. Запускаем polling бота в фоновом режиме
+    polling_task = asyncio.create_task(dp.start_polling(bot))
+    
+    yield  # В этот момент FastAPI работает и принимает HTTP запросы
+    
+    # Завершение работы
+    polling_task.cancel()
+    await bot.session.close()
+
+
+app = FastAPI(title="VakhasBot Mini App", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
@@ -104,13 +120,3 @@ async def create_order(order: OrderIn) -> dict[str, str]:
         raise HTTPException(status_code=502, detail=f"Failed to send Telegram message: {exc}") from exc
 
     return {"status": "ok"}
-
-
-@app.on_event("startup")
-async def on_startup() -> None:
-    asyncio.create_task(dp.start_polling(bot))
-
-
-@app.on_event("shutdown")
-async def on_shutdown() -> None:
-    await bot.session.close()
