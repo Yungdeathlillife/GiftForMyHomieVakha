@@ -6,7 +6,8 @@ from typing import List, Optional, Union
 
 from aiogram import Bot, Dispatcher
 from aiogram.enums import ParseMode
-from aiogram.filters import CommandStart
+from datetime import datetime, timedelta
+from aiogram.filters import CommandStart, Command
 from aiogram.types import (
     InlineKeyboardButton,
     InlineKeyboardMarkup,
@@ -16,7 +17,8 @@ from aiogram.types import (
 from dotenv import load_dotenv
 from fastapi import FastAPI, Header, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel, Field, ValidationError
+from pydantic import BaseModel, Field, ValidationError, field_validator
+import re
 import os
 
 load_dotenv()
@@ -25,6 +27,7 @@ BOT_TOKEN = os.getenv("BOT_TOKEN", "")
 WEBAPP_URL = os.getenv("WEBAPP_URL", "https://example.com")
 ADMIN_CHAT_ID = os.getenv("ADMIN_CHAT_ID", "")
 CONTENT_PATH = Path(__file__).resolve().parent / "content.json"
+STATS_PATH = Path(__file__).resolve().parent / "stats.json"
 
 bot = Bot(token=BOT_TOKEN or "missing-token")
 dp = Dispatcher()
@@ -68,11 +71,27 @@ class Content(BaseModel):
 
 
 class OrderIn(BaseModel):
-    name: str = Field(..., min_length=1, max_length=120)
-    contact: str = Field(..., min_length=1, max_length=200)
+    name: str = Field(..., min_length=2, max_length=120)
+    contact: str = Field(..., min_length=3, max_length=200)
     task_type: str = Field(..., min_length=1, max_length=120)
     budget: str = Field(..., min_length=1, max_length=80)
-    description: str = Field(..., min_length=1, max_length=4000)
+    description: str = Field(..., min_length=10, max_length=4000)
+
+    @field_validator('contact')
+    @classmethod
+    def validate_contact(cls, v: str) -> str:
+        v = v.strip()
+        # Автоподстановка @ если это просто текст (юзернейм)
+        if not v.startswith('@') and not v.startswith('+') and not v.startswith('http') and re.match(r'^[a-zA-Z0-9_]+$', v):
+            v = f"@{v}"
+        
+        is_tg = bool(re.match(r'^@[a-zA-Z0-9_]{4,32}$', v))
+        is_phone = bool(re.match(r'^\+?[0-9\s\-\(\)]{7,18}$', v))
+        is_url = bool(re.match(r'^https?://', v))
+
+        if not (is_tg or is_phone or is_url):
+            raise ValueError('Некорректный контакт')
+        return v
 
 
 class OrderStatus(BaseModel):
@@ -114,6 +133,45 @@ def write_content(content: Content) -> Content:
         raise HTTPException(status_code=500, detail=f"Failed to write content.json: {exc}") from exc
     return content
 
+def record_visit(user_id: str) -> None:
+    """Записывает визит пользователя с текущей датой."""
+    if not user_id:
+        return
+    visits = []
+    if STATS_PATH.exists():
+        try:
+            visits = json.loads(STATS_PATH.read_text(encoding="utf-8"))
+        except Exception:
+            visits = []
+    
+    visits.append({
+        "user_id": str(user_id),
+        "timestamp": datetime.utcnow().isoformat()
+    })
+    
+    # Храним историю не дольше 60 дней, чтобы файл не раздувался
+    cutoff = (datetime.utcnow() - timedelta(days=60)).isoformat()
+    visits = [v for v in visits if v.get("timestamp", "") > cutoff]
+    
+    try:
+        STATS_PATH.write_text(json.dumps(visits, ensure_ascii=False, indent=2), encoding="utf-8")
+    except Exception as e:
+        print(f"Failed to write stats: {e}")
+
+def get_stats_7_days() -> int:
+    """Считает уникальных пользователей за последние 7 дней."""
+    if not STATS_PATH.exists():
+        return 0
+    try:
+        visits = json.loads(STATS_PATH.read_text(encoding="utf-8"))
+        cutoff = (datetime.utcnow() - timedelta(days=7)).isoformat()
+        recent_user_ids = {
+            v["user_id"] for v in visits 
+            if v.get("timestamp", "") >= cutoff and "user_id" in v
+        }
+        return len(recent_user_ids)
+    except Exception:
+        return 0
 
 def format_order_message(order: OrderIn) -> str:
     def md(value: str) -> str:
@@ -153,6 +211,18 @@ async def cmd_start(message: Message) -> None:
         reply_markup=keyboard,
     )
 
+@dp.message(Command("stats"))
+async def cmd_stats(message: Message) -> None:
+    if str(message.from_user.id) != str(ADMIN_CHAT_ID):
+        return  # Игнорируем обычных пользователей
+
+    count = get_stats_7_days()
+    await message.answer(
+        f"📊 *Статистика Mini App*\n\n"
+        f"Уникальных пользователей за последние 7 дней: *{count}*",
+        parse_mode=ParseMode.MARKDOWN,
+    )
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -175,7 +245,11 @@ app.add_middleware(
 
 
 @app.get("/api/content", response_model=Content)
-async def get_content() -> Content:
+async def get_content(
+    x_user_id: Optional[str] = Header(default=None, alias="X-User-ID")
+) -> Content:
+    if x_user_id:
+        record_visit(x_user_id)
     return read_content()
 
 

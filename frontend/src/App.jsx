@@ -2,6 +2,7 @@ import WebApp from '@twa-dev/sdk'
 import { useEffect, useMemo, useState } from 'react'
 
 const API_BASE_URL = "https://giftformyhomievakha.onrender.com"
+const ADMIN_TELEGRAM_ID = '1930630724'
 
 const TASK_TYPES = [
   { value: 'Mobile App', ru: 'Mobile App', en: 'Mobile App' },
@@ -168,9 +169,15 @@ export default function App() {
   const [form, setForm] = useState(emptyForm)
   const [status, setStatus] = useState('idle')
   const [error, setError] = useState('')
+  const [fieldErrors, setFieldErrors] = useState({})
   const [lang, setLang] = useState('RU')
   const [theme, setTheme] = useState(() => detectTelegramScheme() || 'dark')
   const [selectedCase, setSelectedCase] = useState(null)
+
+  const [isAdmin, setIsAdmin] = useState(false)
+  const [isEditOpen, setIsEditOpen] = useState(false)
+  const [editData, setEditData] = useState(null)
+  const [isSaving, setIsSaving] = useState(false)
 
   const t = translations[lang]
   const isDark = theme === 'dark'
@@ -206,16 +213,62 @@ export default function App() {
     setForm((prev) => ({ ...prev, [field]: value }))
   }
 
+  function validateContact(value) {
+    const trimmed = value.trim()
+    if (!trimmed) return 'Укажите контакт для связи'
+    
+    let formatted = trimmed
+    if (!trimmed.startsWith('@') && !trimmed.startsWith('+') && !trimmed.startsWith('http') && /^[a-zA-Z0-9_]+$/.test(trimmed)) {
+      formatted = `@${trimmed}`
+    }
+
+    const isTg = /^@[a-zA-Z0-9_]{4,32}$/.test(formatted)
+    const isPhone = /^\+?[0-9\s\-\(\)]{7,18}$/.test(formatted)
+    const isUrl = /^https?:\/\//.test(formatted)
+
+    if (!isTg && !isPhone && !isUrl) {
+      return 'Введите @username, телефон или ссылку'
+    }
+    return { valid: true, value: formatted }
+  }
+
   async function onSubmit(event) {
     event.preventDefault()
-    setStatus('sending')
+    setFieldErrors({})
     setError('')
+
+    const errors = {}
+
+    if (!form.name.trim() || form.name.trim().length < 2) {
+      errors.name = 'Минимум 2 символа'
+    }
+
+    const contactCheck = validateContact(form.contact)
+    if (typeof contactCheck === 'string') {
+      errors.contact = contactCheck
+    }
+
+    if (!form.description.trim() || form.description.trim().length < 10) {
+      errors.description = 'Минимум 10 символов'
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors)
+      return
+    }
+
+    const payload = {
+      ...form,
+      contact: typeof contactCheck === 'object' ? contactCheck.value : form.contact
+    }
+
+    setStatus('sending')
 
     try {
       const response = await fetch(`${API_BASE_URL}/api/order`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
+        body: JSON.stringify(payload),
       })
 
       if (!response.ok) throw new Error(t.requestFailed)
@@ -385,10 +438,11 @@ export default function App() {
                 {t.name}
                 <input
                   required
-                  className={field}
+                  className={`${field} ${fieldErrors.name ? 'border-red-500 focus:border-red-500' : ''}`}
                   value={form.name}
                   onChange={(e) => update('name', e.target.value)}
                 />
+                {fieldErrors.name && <span className="text-[10px] text-red-400 mt-1 block">{fieldErrors.name}</span>}
               </label>
 
               <label className={`block text-xs ${muted}`}>
@@ -396,10 +450,11 @@ export default function App() {
                 <input
                   required
                   placeholder={t.contactPlaceholder}
-                  className={field}
+                  className={`${field} ${fieldErrors.contact ? 'border-red-500 focus:border-red-500' : ''}`}
                   value={form.contact}
                   onChange={(e) => update('contact', e.target.value)}
                 />
+                {fieldErrors.contact && <span className="text-[10px] text-red-400 mt-1 block">{fieldErrors.contact}</span>}
               </label>
 
               <div className="grid grid-cols-2 gap-2">
@@ -435,10 +490,11 @@ export default function App() {
                 <textarea
                   required
                   rows={3}
-                  className={`${field} resize-none`}
+                  className={`${field} resize-none ${fieldErrors.description ? 'border-red-500 focus:border-red-500' : ''}`}
                   value={form.description}
                   onChange={(e) => update('description', e.target.value)}
                 />
+                {fieldErrors.description && <span className="text-[10px] text-red-400 mt-1 block">{fieldErrors.description}</span>}
               </label>
 
               {status === 'error' && <p className="text-xs text-red-400">{error}</p>}
