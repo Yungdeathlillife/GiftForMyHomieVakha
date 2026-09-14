@@ -271,19 +271,20 @@ export default function App() {
         </div>
 
         {/* Профиль с Нейтральным Аватаром-Силуэтом */}
+        {/* Профиль */}
         <header className="flex items-center gap-4">
-          <div className="relative h-16 w-16 shrink-0 rounded-2xl overflow-hidden bg-gradient-to-tr from-slate-700 via-zinc-800 to-violet-900 flex items-center justify-center text-zinc-400 border border-white/10 shadow-lg">
+          <div className="relative h-16 w-16 shrink-0 rounded-2xl overflow-hidden bg-gradient-to-tr from-zinc-800 via-slate-800 to-zinc-900 flex items-center justify-center text-zinc-400 border border-white/10 shadow-lg">
             {profile.avatar_url ? (
               <img src={profile.avatar_url} alt="Avatar" className="h-full w-full object-cover" />
             ) : (
-              <svg className="w-9 h-9 opacity-70" fill="currentColor" viewBox="0 0 24 24">
+              <svg className="w-8 h-8 text-zinc-400 opacity-80" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
               </svg>
             )}
           </div>
           <div>
             <h1 className={`text-xl font-bold ${title}`}>
-              {isRu ? (profile.name || 'Вахтанг') : (profile.name_en || 'Vakhtang')}
+              {isRu ? 'Вахтанг' : (profile.name_en || profile.name || 'Vakhtang')}
             </h1>
             <p className="text-xs text-violet-500 font-medium">{profile.title}</p>
             <span className={`mt-1 inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[10px] font-medium ${
@@ -297,41 +298,47 @@ export default function App() {
 
         {/* Динамическое БИО */}
         <p className={`text-sm leading-relaxed ${isDark ? 'text-zinc-300' : 'text-slate-600'}`}>
-          {isRu ? (profile.bio || defaultContent.profile.bio) : (profile.bio_en || defaultContent.profile.bio_en)}
+          {isRu 
+            ? (profile.bio_ru || defaultContent.profile.bio) 
+            : (profile.bio_en || profile.bio || defaultContent.profile.bio_en)}
         </p>
 
-        {/* Динамический Питч Баннер */}
+        {/* Питч Баннер */}
         <section className={`rounded-2xl p-4 border ${
           isDark
             ? 'border-violet-500/30 bg-violet-950/20'
             : 'border-violet-200 bg-white shadow-sm'
         }`}>
           <h2 className="text-sm font-bold text-violet-500">
-            {isRu ? (pitch.title || defaultContent.pitch.title) : (pitch.title_en || defaultContent.pitch.title_en)}
+            {isRu 
+              ? (pitch.title_ru || defaultContent.pitch.title) 
+              : (pitch.title_en || pitch.title || defaultContent.pitch.title_en)}
           </h2>
           <p className={`mt-1 text-xs ${isDark ? 'text-zinc-300' : 'text-slate-600'}`}>
-            {isRu ? (pitch.subtitle || defaultContent.pitch.subtitle) : (pitch.subtitle_en || defaultContent.pitch.subtitle_en)}
+            {isRu 
+              ? (pitch.subtitle_ru || defaultContent.pitch.subtitle) 
+              : (pitch.subtitle_en || pitch.subtitle || defaultContent.pitch.subtitle_en)}
           </p>
         </section>
 
-        {/* Карточка 1 вместо 2 в блоке Портфолио (grid-cols-1) */}
+        {/* Портфолио (2 карточки в ряд) */}
         <section className="space-y-3">
           <h2 className={`text-xs font-bold uppercase tracking-wider ${muted}`}>{t.portfolio}</h2>
-          <div className="grid grid-cols-1 gap-4">
+          <div className="grid grid-cols-2 gap-3">
             {cases.map((work) => (
               <div
                 key={work.id}
                 onClick={() => setSelectedCase(work)}
-                className={`${card} p-3 cursor-pointer transition transform active:scale-[0.98] hover:border-violet-500/40`}
+                className={`${card} p-2.5 cursor-pointer transition transform active:scale-95 hover:border-violet-500/40`}
               >
                 <ImageWithFallback
                   src={work.cover}
                   alt={work.title}
                   previewText={t.preview}
-                  className="h-44 w-full rounded-xl object-cover mb-3"
+                  className="h-24 w-full rounded-xl object-cover mb-2"
                 />
-                <h3 className={`text-sm font-bold ${title}`}>{work.title}</h3>
-                <span className="inline-block mt-1 text-[10px] font-semibold text-violet-500 bg-violet-500/10 px-2 py-0.5 rounded">
+                <h3 className={`text-xs font-bold line-clamp-1 ${title}`}>{work.title}</h3>
+                <span className="inline-block mt-1 text-[9px] font-semibold text-violet-500 bg-violet-500/10 px-1.5 py-0.5 rounded">
                   {work.category}
                 </span>
               </div>
@@ -340,8 +347,9 @@ export default function App() {
         </section>
 
         {/* Ультра-компактные кнопки соцсетей без иконок */}
+        {/* Кнопки ресурсов по левому краю */}
         {contacts.length > 0 && (
-          <section className="flex flex-wrap gap-1.5 pt-1">
+          <section className="flex flex-wrap justify-start gap-2 pt-1">
             {contacts.map((item) => {
               const key = socialKey(item)
               return (
@@ -349,7 +357,7 @@ export default function App() {
                   key={item.id}
                   type="button"
                   onClick={() => openExternal(item.url)}
-                  className={`px-2.5 py-1 text-[11px] font-medium rounded-lg transition ${SOCIAL_STYLES[key]}`}
+                  className={`px-3 py-1.5 text-xs font-medium rounded-xl transition ${SOCIAL_STYLES[key]}`}
                 >
                   {item.name}
                 </button>
