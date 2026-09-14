@@ -1,14 +1,19 @@
 {
   "profile": {
     "name": "Вахтанг",
+    "name_en": "Vakhtang",
     "title": "Digital Product & Visual Designer",
-    "avatar_url": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&auto=format&fit=crop&q=80",
-    "bio": "Crafting modern visual solutions for businesses: from brand identity to web apps."
+    "avatar_url": "",
+    "bio": "Создаю современные визуальные решения для бизнеса: от брендинга до веб-приложений.",
+    "bio_en": "Crafting modern visual solutions for businesses: from brand identity to web apps."
   },
   "pitch": {
-    "title": "Ready to bring your project to life",
-    "subtitle": "High-impact visual design that makes your brand stand out.",
-    "button_text": "Discuss Project"
+    "title": "Готов оживить ваш проект",
+    "title_en": "Ready to bring your project to life",
+    "subtitle": "Дизайн с высоким эффектом, который выделяет ваш бренд.",
+    "subtitle_en": "High-impact visual design that makes your brand stand out.",
+    "button_text": "Оставить заявку",
+    "button_text_en": "Submit Request"
   },
   "contacts": [
     {
@@ -41,9 +46,20 @@
       "id": "1",
       "title": "E-Commerce App Design",
       "category": "UI/UX & Mobile",
-      "cover": "https://via.placeholder.com/600x400",
-      "description": "Full lifecycle UI design for a shopping platform...",
-      "images": ["https://via.placeholder.com/600x400"],
+      "cover": "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&q=80",
+      "description": "Проектирование удобного мобильного приложения интернет-магазина. Разработка интерфейса, логики взаимодействия и дизайн-системы.",
+      "description_en": "Full lifecycle UI design for a shopping platform with modern user experience.",
+      "images": ["https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&q=80"],
+      "link": "https://behance.net"
+    },
+    {
+      "id": "2",
+      "title": "Fintech Dashboard & Branding",
+      "category": "Branding & Web",
+      "cover": "https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?w=800&q=80",
+      "description": "Разработка айдентики и веб-интерфейса для финтех-платформы. Чистый современный стиль и быстрая аналитика данных.",
+      "description_en": "Brand identity and dashboard UI design for a fintech platform.",
+      "images": ["https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?w=800&q=80"],
       "link": "https://behance.net"
     }
   ]
