@@ -1,0 +1,38 @@
+{
+  "profile": {
+    "name": "Vakha",
+    "title": "Digital Product & Visual Designer",
+    "avatar_url": "https://via.placeholder.com/150",
+    "bio": "Crafting modern visual solutions for businesses: from brand identity to web apps."
+  },
+  "pitch": {
+    "title": "Ready to bring your project to life",
+    "subtitle": "High-impact visual design that makes your brand stand out.",
+    "button_text": "Discuss Project"
+  },
+  "contacts": [
+    {
+      "id": "1",
+      "name": "Telegram",
+      "url": "https://t.me/your_username",
+      "icon": "telegram"
+    },
+    {
+      "id": "2",
+      "name": "Behance",
+      "url": "https://behance.net",
+      "icon": "behance"
+    }
+  ],
+  "cases": [
+    {
+      "id": "1",
+      "title": "E-Commerce App Design",
+      "category": "UI/UX & Mobile",
+      "cover": "https://via.placeholder.com/600x400",
+      "description": "Full lifecycle UI design for a shopping platform...",
+      "images": ["https://via.placeholder.com/600x400"],
+      "link": "https://behance.net"
+    }
+  ]
+}
