@@ -1,7 +1,7 @@
 import WebApp from '@twa-dev/sdk'
 import { useEffect, useState } from 'react'
 
-const API_BASE = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '')
+const API_BASE_URL = import.meta.env.VITE_API_URL || "https://giftformyhomievakha.onrender.com"
 
 const TASK_TYPES = [
   'Mobile App',
@@ -55,7 +55,9 @@ export default function App() {
       // SDK is optional outside Telegram
     }
 
-    fetch(`${API_BASE}/api/content`)
+    fetch(`${API_BASE_URL}/api/content`, {
+      headers: { 'Content-Type': 'application/json' },
+    })
       .then(async (response) => {
         if (!response.ok) {
           const payload = await response.json().catch(() => ({}))
@@ -79,7 +81,7 @@ export default function App() {
     setError('')
 
     try {
-      const response = await fetch(`${API_BASE}/api/order`, {
+      const response = await fetch(`${API_BASE_URL}/api/order`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form),
