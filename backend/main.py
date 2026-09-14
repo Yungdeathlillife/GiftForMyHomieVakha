@@ -201,13 +201,13 @@ async def cmd_start(message: Message) -> None:
             [
                 InlineKeyboardButton(
                     text="Открыть портфолио",
-                    web_app=WebAppInfo(url=f"{WEBAPP_URL}?v=2"),
+                    web_app=WebAppInfo(url=f"{WEBAPP_URL}?v=release_v3"),
                 )
             ]
         ]
     )
     await message.answer(
-        "Привет! Я UI/UX дизайнер из Великого Новгорода.\n"
+        "Привет! Я веб-дизайнер из Великого Новгорода.\n"
         "Открой мини-приложение, чтобы посмотреть работы и оставить заказ.",
         reply_markup=keyboard,
     )
