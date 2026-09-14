@@ -13,6 +13,7 @@ from aiogram.types import (
     InlineKeyboardMarkup,
     Message,
     WebAppInfo,
+    BotCommand,
 )
 from dotenv import load_dotenv
 from fastapi import FastAPI, Header, HTTPException
@@ -200,7 +201,7 @@ async def cmd_start(message: Message) -> None:
             [
                 InlineKeyboardButton(
                     text="Открыть портфолио",
-                    web_app=WebAppInfo(url=WEBAPP_URL),
+                    web_app=WebAppInfo(url=f"{WEBAPP_URL}?v=2"),
                 )
             ]
         ]
@@ -227,6 +228,13 @@ async def cmd_stats(message: Message) -> None:
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     await bot.delete_webhook(drop_pending_updates=True)
+    
+    # Регистрируем меню команд для бота
+    await bot.set_my_commands([
+        BotCommand(command="start", description="Открыть портфолио"),
+        BotCommand(command="stats", description="Статистика визитов"),
+    ])
+
     polling_task = asyncio.create_task(dp.start_polling(bot))
     yield
     polling_task.cancel()
