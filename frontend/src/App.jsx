@@ -346,10 +346,10 @@ export default function App() {
           </div>
         </section>
 
-        {/* Ультра-компактные кнопки соцсетей без иконок */}
-        {/* Кнопки ресурсов по левому краю */}
+
+        {/* Кнопки ресурсов (Идеально ровные по ширине) */}
         {contacts.length > 0 && (
-          <section className="flex flex-wrap justify-start gap-2 pt-1">
+          <section className="flex w-full gap-2 pt-1">
             {contacts.map((item) => {
               const key = socialKey(item)
               return (
@@ -357,9 +357,9 @@ export default function App() {
                   key={item.id}
                   type="button"
                   onClick={() => openExternal(item.url)}
-                  className={`px-3 py-1.5 text-xs font-medium rounded-xl transition ${SOCIAL_STYLES[key]}`}
+                  className={`flex-1 py-2 px-1 flex items-center justify-center text-[10px] sm:text-[11px] font-medium rounded-xl transition ${SOCIAL_STYLES[key]}`}
                 >
-                  {item.name}
+                  <span className="truncate">{item.name}</span>
                 </button>
               )
             })}
