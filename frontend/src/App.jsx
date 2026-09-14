@@ -1,7 +1,7 @@
 import WebApp from '@twa-dev/sdk'
 import { useEffect, useState } from 'react'
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || "https://giftformyhomievakha.onrender.com"
+const API_BASE_URL = "https://giftformyhomievakha.onrender.com"
 
 const TASK_TYPES = [
   'Mobile App',
