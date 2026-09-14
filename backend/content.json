@@ -1,8 +1,8 @@
 {
   "profile": {
-    "name": "Vakha",
+    "name": "Вахтанг",
     "title": "Digital Product & Visual Designer",
-    "avatar_url": "https://via.placeholder.com/150",
+    "avatar_url": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&auto=format&fit=crop&q=80",
     "bio": "Crafting modern visual solutions for businesses: from brand identity to web apps."
   },
   "pitch": {
@@ -19,8 +19,20 @@
     },
     {
       "id": "2",
+      "name": "WhatsApp",
+      "url": "https://wa.me/your_number",
+      "icon": "whatsapp"
+    },
+    {
+      "id": "3",
+      "name": "Instagram",
+      "url": "https://instagram.com/your_handle",
+      "icon": "instagram"
+    },
+    {
+      "id": "4",
       "name": "Behance",
-      "url": "https://behance.net",
+      "url": "https://behance.net/your_profile",
       "icon": "behance"
     }
   ],

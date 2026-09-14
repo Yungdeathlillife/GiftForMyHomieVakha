@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 html,
 body,
 #root {
@@ -8,8 +10,6 @@ body,
 
 body {
   margin: 0;
-  background: #18181b;
-  color: #fafafa;
   font-family:
     Inter, system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
